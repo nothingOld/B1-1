@@ -52,6 +52,8 @@ button {
 }
 
 .navbar {
+    position: relative;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -69,6 +71,23 @@ button {
 /* mobile에서는 navigation 메뉴 숨기기 */
 .nav-menu {
     display: none;
+
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    width: 100%;
+    padding: var(--spacing-medium);
+
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-menu.active {
+    display: flex;
 }
 
 .nav-actions {
@@ -367,8 +386,16 @@ section {
 @media (min-width: 768px) {
     .nav-menu {
         display: flex;
+
+        position: static;
+        width: auto;
+        padding: 0;
+
+        flex-direction: row;
         align-items: center;
         gap: var(--spacing-large);
+
+        border-bottom: none;
     }
 
     .hamburger {

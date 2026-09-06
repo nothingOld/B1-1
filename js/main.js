@@ -16,3 +16,18 @@ const formSuccess = document.querySelector('#form-success');
 
 const projectStatus = document.querySelector('#project-status');
 const projectList = document.querySelector('#project-list');
+
+hamburgerButton.addEventListener('click', () => {
+    const isActive = navMenu.classList.toggle('active');
+
+    hamburgerButton.setAttribute('aria-expanded', String(isActive));
+});
+
+navLinks.forEach((navLink) => {
+    navLink.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+
+        hamburgerButton.setAttribute('aria-expanded', 'false');
+    });
+});
+
