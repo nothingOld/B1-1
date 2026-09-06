@@ -331,6 +331,30 @@ section {
     color: #188038;
 }
 
+.footer {
+    border-top: 1px solid var(--border-color);
+    background-color: var(--background-color);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-large) var(--spacing-medium);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-medium);
+
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-medium);
+}
+
 /* tablet */
 @media (min-width: 768px) {
     .nav-menu {
