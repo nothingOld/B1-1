@@ -277,9 +277,19 @@ const showProjectLoaded = () => {
     projectStatus.textContent = '';
 };
 
-const showProjectLoadFailure = () => {
+const showProjectError = (error) => {
     projectStatus.classList.remove('loading');
-    projectStatus.textContent = '프로젝트를 불러오지 못했습니다.';
+    projectList.textContent = '';
+
+    if (error.status === 403) {
+        projectStatus.textContent =
+            'GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.';
+
+        return;
+    }
+
+    projectStatus.textContent =
+        '프로젝트를 불러올 수 없습니다.';
 };
 
 const fetchRepositories = async () => {
@@ -289,7 +299,9 @@ const fetchRepositories = async () => {
         const response = await fetch(GITHUB_API_URL);
 
         if (!response.ok) {
-            throw new Error(`GitHub API 요청 실패: ${response.status}`);
+            const error = new Error(`GitHub API 요청 실패: ${response.status}`);
+            error.status = response.status;
+            throw error;
         }
 
         const repositories = await response.json();
@@ -304,7 +316,7 @@ const fetchRepositories = async () => {
     } catch (error) {
         console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
 
-        showProjectLoadFailure();
+        showProjectError(error);
     }
 };
 
@@ -429,3 +441,4 @@ const showProjectEmpty = () => {
     projectStatus.textContent = '표시할 프로젝트가 없습니다.';
     projectList.textContent = '';
 };
+
