@@ -620,39 +620,6 @@ E1-1/
 
 ---
 
-## Screenshots
-
-### Desktop - Light Mode
-
-데스크톱 환경에서의 Hero 및 전체 레이아웃입니다.
-
-![Desktop Light Mode](docs/screenshots/desktop-light.png)
-
----
-
-### Mobile - Navigation Menu
-
-모바일 환경에서 햄버거 메뉴를 활성화한 화면입니다.
-
-![Mobile Navigation Menu](docs/screenshots/mobile-menu.png)
-
----
-
-### Projects - Dark Mode
-
-Dark Mode에서 GitHub Repository 카드와 대표 언어 필터를 표시한 화면입니다.
-
-![Projects Dark Mode](docs/screenshots/projects-dark.png)
-
----
-
-### Contact Form - Success
-
-Formspree를 통해 Contact Form 메시지가 정상적으로 전송된 화면입니다.
-
-![Contact Form Success](docs/screenshots/contact-success.png)
-
----
 
 ## 테스트 항목
 
