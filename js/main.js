@@ -72,6 +72,7 @@ scrollTopButton.addEventListener('click', () => {
 });
 
 const THEME_STORAGE_KEY = 'theme';
+const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 const updateThemeButton = (theme) => {
     if (theme === 'dark') {
@@ -88,6 +89,10 @@ const applyTheme = (theme) => {
     updateThemeButton(theme);
 };
 
+const getSystemTheme = () => {
+    return systemThemeMediaQuery.matches ? 'dark' : 'light';
+};
+
 const initializeTheme = () => {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
 
@@ -96,7 +101,7 @@ const initializeTheme = () => {
         return;
     }
 
-    applyTheme('light');
+    applyTheme(getSystemTheme());
 };
 
 initializeTheme();
@@ -110,6 +115,17 @@ themeToggleButton.addEventListener('click', () => {
 
     localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
 });
+
+systemThemeMediaQuery.addEventListener('change', () => {
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            return;
+        }
+
+        applyTheme(getSystemTheme());
+    }
+);
 
 const revealElements = document.querySelectorAll('.reveal');
 
