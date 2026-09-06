@@ -8,8 +8,8 @@
 
 ## 배포 주소
 
-* GitHub Repository: https://github.com/nothingOld/E1-1
-* GitHub Pages: https://nothingold.github.io/E1-1/
+* GitHub Repository: https://github.com/nothingOld/B1-1
+* GitHub Pages: https://nothingold.github.io/B1-1/
 
 ---
 
@@ -471,7 +471,28 @@ onclick=""
 
 ## 상태 기반 UI 처리
 
-주요 기능은 상태가 변경되면 UI를 다시 렌더링하도록 구성했습니다.
+주요 화면 상태는 `main.js`의 단일 `STATE` 객체에서 관리합니다.
+Repository 데이터, 선택된 언어, 현재 Theme을 개별 전역 변수로 분산하지 않고 하나의 상태 객체에 모아 UI 상태의 출처를 명확히 했습니다.
+
+```javascript
+const STATE = {
+    repositories: [],
+    selectedLanguage: 'all',
+    theme: 'light'
+};
+```
+
+사용자 이벤트 또는 API 응답으로 `STATE`가 변경되면 해당 상태를 기준으로 화면을 다시 렌더링합니다.
+
+```text
+Event / API Response
+↓
+STATE 변경
+↓
+Render 함수 호출
+↓
+DOM 업데이트
+```
 
 ### GitHub Projects
 
@@ -488,7 +509,7 @@ UI 렌더링
 ```text
 필터 버튼 클릭
 ↓
-selectedLanguage 변경
+STATE.selectedLanguage 변경
 ↓
 filter()
 ↓
@@ -498,7 +519,7 @@ Project 다시 렌더링
 ### Dark Mode
 
 ```text
-Theme 변경
+STATE.theme 변경
 ↓
 data-theme 변경
 ↓

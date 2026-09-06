@@ -1,374 +1,582 @@
+'use strict';
+
+/* ========================================
+   Constants
+======================================== */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwlknzen';
+const GITHUB_USERNAME = 'nothingOld';
+const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
+const THEME_STORAGE_KEY = 'theme';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TYPING_SPEED = 50;
+const SCROLL_TOP_THRESHOLD = 300;
+const HEADER_SCROLL_THRESHOLD = 60;
 
-const header = document.querySelector('.header');
+/* ========================================
+   Application State
+======================================== */
+/**
+ * 애플리케이션에서 화면 렌더링에 사용하는 상태의 단일 출처입니다.
+ * 상태를 개별 전역 변수로 분산하지 않고 하나의 객체에서 관리합니다.
+ *
+ * @type {{
+ *   repositories: Array<Object>,
+ *   selectedLanguage: string,
+ *   theme: 'light' | 'dark'
+ * }}
+ */
+const STATE = {
+    repositories: [],
+    selectedLanguage: 'all',
+    theme: 'light'
+};
 
-const hamburgerButton = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-const navLinks = document.querySelectorAll('.nav-link');
+/* ========================================
+   DOM References
+======================================== */
+const elements = {
+    header: document.querySelector('.header'),
+    hamburgerButton: document.querySelector('.hamburger'),
+    navMenu: document.querySelector('.nav-menu'),
+    navLinks: document.querySelectorAll('.nav-link'),
+    themeToggleButton: document.querySelector('.theme-toggle'),
+    heroDescription: document.querySelector('.hero-description'),
+    contactForm: document.querySelector('#contact-form'),
+    nameInput: document.querySelector('#name'),
+    emailInput: document.querySelector('#email'),
+    messageInput: document.querySelector('#message'),
+    nameError: document.querySelector('#name-error'),
+    emailError: document.querySelector('#email-error'),
+    messageError: document.querySelector('#message-error'),
+    formStatus: document.querySelector('#form-status'),
+    projectStatus: document.querySelector('#project-status'),
+    projectList: document.querySelector('#project-list'),
+    projectFilters: document.querySelector('#project-filters'),
+    scrollTopButton: document.querySelector('#scroll-top-button'),
+    revealElements: document.querySelectorAll('.reveal')
+};
 
-const themeToggleButton = document.querySelector('.theme-toggle');
+elements.submitButton = elements.contactForm.querySelector('.submit-button');
 
-const heroDescription = document.querySelector('.hero-description');
+const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-const contactForm = document.querySelector('#contact-form');
-const nameInput = document.querySelector('#name');
-const emailInput = document.querySelector('#email');
-const messageInput = document.querySelector('#message');
+/* ========================================
+   Navigation / Scroll
+======================================== */
+/**
+ * 모바일 내비게이션 메뉴를 닫고 접근성 상태를 갱신합니다.
+ *
+ * @returns {void}
+ */
+function closeNavigationMenu() {
+    elements.navMenu.classList.remove('active');
+    elements.hamburgerButton.setAttribute('aria-expanded', 'false');
+}
 
-const nameError = document.querySelector('#name-error');
-const emailError = document.querySelector('#email-error');
-const messageError = document.querySelector('#message-error');
-const formStatus = document.querySelector('#form-status');
-const submitButton = contactForm.querySelector('.submit-button');
+/**
+ * 햄버거 버튼 클릭 시 모바일 내비게이션 메뉴를 토글합니다.
+ *
+ * @returns {void}
+ */
+function handleHamburgerClick() {
+    const isActive = elements.navMenu.classList.toggle('active');
+    elements.hamburgerButton.setAttribute('aria-expanded', String(isActive));
+}
 
-const projectStatus = document.querySelector('#project-status');
-const projectList = document.querySelector('#project-list');
-const projectFilters = document.querySelector('#project-filters');
+/**
+ * 내비게이션 링크 대상 섹션으로 부드럽게 이동합니다.
+ *
+ * @param {MouseEvent} event - 링크 클릭 이벤트입니다.
+ * @returns {void}
+ */
+function handleNavigationClick(event) {
+    event.preventDefault();
 
-const scrollTopButton = document.querySelector('#scroll-top-button');
+    const targetId = event.currentTarget.getAttribute('href');
+    const targetSection = document.querySelector(targetId);
 
-hamburgerButton.addEventListener('click', () => {
-    const isActive = navMenu.classList.toggle('active');
-    hamburgerButton.setAttribute('aria-expanded', String(isActive));
-});
-
-navLinks.forEach((navLink) => {
-    navLink.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        const targetId = navLink.getAttribute('href');
-        const targetSection = document.querySelector(targetId);
-
-        if (targetSection) {
-            targetSection.scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-
-        navMenu.classList.remove('active');
-        hamburgerButton.setAttribute('aria-expanded', 'false');
-    });
-});
-
-window.addEventListener('scroll', () => {
-    if (window.scrollY >= 300) {
-        scrollTopButton.classList.add('show');
-    } else {
-        scrollTopButton.classList.remove('show');
+    if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    if (window.scrollY >= 60) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
+    closeNavigationMenu();
+}
 
-scrollTopButton.addEventListener('click', () => {
+/**
+ * 현재 스크롤 위치에 따라 헤더와 맨 위로 이동 버튼의 상태를 갱신합니다.
+ *
+ * @returns {void}
+ */
+function handleWindowScroll() {
+    const scrollPosition = window.scrollY;
+
+    elements.scrollTopButton.classList.toggle(
+        'show',
+        scrollPosition >= SCROLL_TOP_THRESHOLD
+    );
+    elements.header.classList.toggle(
+        'scrolled',
+        scrollPosition >= HEADER_SCROLL_THRESHOLD
+    );
+}
+
+/**
+ * 페이지 최상단으로 이동합니다.
+ *
+ * @returns {void}
+ */
+function scrollToTop() {
     window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: reducedMotionMediaQuery.matches ? 'auto' : 'smooth'
     });
-});
+}
 
-const THEME_STORAGE_KEY = 'theme';
-const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+/**
+ * 내비게이션 및 스크롤 관련 이벤트를 등록합니다.
+ *
+ * @returns {void}
+ */
+function initializeNavigation() {
+    elements.hamburgerButton.addEventListener('click', handleHamburgerClick);
+    elements.navLinks.forEach((navLink) => {
+        navLink.addEventListener('click', handleNavigationClick);
+    });
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
+    elements.scrollTopButton.addEventListener('click', scrollToTop);
 
-const updateThemeButton = (theme) => {
-    if (theme === 'dark') {
-        themeToggleButton.textContent = 'L';
-        themeToggleButton.setAttribute('aria-label', '라이트 모드로 전환');
-    } else {
-        themeToggleButton.textContent = 'D';
-        themeToggleButton.setAttribute('aria-label', '다크 모드로 전환');
-    }
-};
+    handleWindowScroll();
+}
 
-const applyTheme = (theme) => {
+/* ========================================
+   Theme
+======================================== */
+/**
+ * 시스템의 현재 색상 테마를 반환합니다.
+ *
+ * @returns {'light' | 'dark'} 시스템 테마입니다.
+ */
+function getSystemTheme() {
+    return systemThemeMediaQuery.matches ? 'dark' : 'light';
+}
+
+/**
+ * 현재 테마에 맞게 테마 전환 버튼의 표시와 접근성 라벨을 갱신합니다.
+ *
+ * @param {'light' | 'dark'} theme - 현재 적용할 테마입니다.
+ * @returns {void}
+ */
+function updateThemeButton(theme) {
+    const isDarkTheme = theme === 'dark';
+
+    elements.themeToggleButton.textContent = isDarkTheme ? 'L' : 'D';
+    elements.themeToggleButton.setAttribute(
+        'aria-label',
+        isDarkTheme ? '라이트 모드로 전환' : '다크 모드로 전환'
+    );
+}
+
+/**
+ * 문서와 STATE에 테마를 적용합니다.
+ *
+ * @param {'light' | 'dark'} theme - 적용할 테마입니다.
+ * @returns {void}
+ */
+function applyTheme(theme) {
+    STATE.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeButton(theme);
-};
+}
 
-const getSystemTheme = () => {
-    return systemThemeMediaQuery.matches ? 'dark' : 'light';
-};
+/**
+ * 저장된 사용자 테마가 있으면 우선 적용하고, 없으면 시스템 테마를 적용합니다.
+ *
+ * @returns {void}
+ */
+function initializeTheme() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    const hasValidSavedTheme = savedTheme === 'dark' || savedTheme === 'light';
 
-const initializeTheme = () => {
+    applyTheme(hasValidSavedTheme ? savedTheme : getSystemTheme());
+}
+
+/**
+ * 사용자가 테마 전환 버튼을 누르면 다음 테마를 적용하고 저장합니다.
+ *
+ * @returns {void}
+ */
+function handleThemeToggle() {
+    const nextTheme = STATE.theme === 'dark' ? 'light' : 'dark';
+
+    applyTheme(nextTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+}
+
+/**
+ * 사용자가 별도 테마를 저장하지 않은 경우 시스템 테마 변경을 반영합니다.
+ *
+ * @returns {void}
+ */
+function handleSystemThemeChange() {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
 
     if (savedTheme === 'dark' || savedTheme === 'light') {
-        applyTheme(savedTheme);
         return;
     }
 
     applyTheme(getSystemTheme());
-};
+}
 
-initializeTheme();
+/**
+ * 테마 관련 이벤트를 등록합니다.
+ *
+ * @returns {void}
+ */
+function initializeThemeEvents() {
+    elements.themeToggleButton.addEventListener('click', handleThemeToggle);
+    systemThemeMediaQuery.addEventListener('change', handleSystemThemeChange);
+}
 
-themeToggleButton.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-
-    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-    applyTheme(nextTheme);
-
-    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-});
-
-systemThemeMediaQuery.addEventListener('change', () => {
-        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            return;
-        }
-
-        applyTheme(getSystemTheme());
-    }
-);
-
-const revealElements = document.querySelectorAll('.reveal');
-
-const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-
-                observer.unobserve(entry.target);
-            }
+/* ========================================
+   Reveal Animation
+======================================== */
+/**
+ * 화면에 진입한 요소를 표시하는 IntersectionObserver를 초기화합니다.
+ *
+ * @returns {void}
+ */
+function initializeRevealAnimation() {
+    if (reducedMotionMediaQuery.matches) {
+        elements.revealElements.forEach((element) => {
+            element.classList.add('visible');
         });
-    },
-    {
-        threshold: 0.2
+        return;
     }
-);
 
-revealElements.forEach((element) => {
-    observer.observe(element);
-});
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            });
+        },
+        { threshold: 0.2 }
+    );
 
-const showError = (input, errorElement, message) => {
+    elements.revealElements.forEach((element) => {
+        observer.observe(element);
+    });
+}
+
+/* ========================================
+   Contact Form
+======================================== */
+/**
+ * 입력 필드에 오류 상태와 메시지를 표시합니다.
+ *
+ * @param {HTMLInputElement|HTMLTextAreaElement} input - 오류가 발생한 입력 필드입니다.
+ * @param {HTMLElement} errorElement - 오류 메시지를 출력할 요소입니다.
+ * @param {string} message - 사용자에게 표시할 오류 메시지입니다.
+ * @returns {void}
+ */
+function showError(input, errorElement, message) {
     errorElement.textContent = message;
     input.classList.add('input-error');
     input.setAttribute('aria-invalid', 'true');
-};
+}
 
-const clearError = (input, errorElement) => {
+/**
+ * 입력 필드의 오류 상태와 메시지를 제거합니다.
+ *
+ * @param {HTMLInputElement|HTMLTextAreaElement} input - 오류 상태를 해제할 입력 필드입니다.
+ * @param {HTMLElement} errorElement - 오류 메시지 요소입니다.
+ * @returns {void}
+ */
+function clearError(input, errorElement) {
     errorElement.textContent = '';
     input.classList.remove('input-error');
     input.setAttribute('aria-invalid', 'false');
-};
+}
 
-const validateName = (name) => {
+/**
+ * 이름 입력값을 검증합니다.
+ *
+ * @param {string} name - 공백 제거가 완료된 이름입니다.
+ * @returns {boolean} 유효하면 true를 반환합니다.
+ */
+function validateName(name) {
     if (name === '') {
-        showError(
-            nameInput,
-            nameError,
-            '이름을 입력해주세요.'
-        );
-
+        showError(elements.nameInput, elements.nameError, '이름을 입력해주세요.');
         return false;
     }
 
-    clearError(nameInput, nameError);
-
+    clearError(elements.nameInput, elements.nameError);
     return true;
-};
+}
 
-const validateEmail = (email) => {
+/**
+ * 이메일 입력값을 빈 값 및 이메일 형식 기준으로 검증합니다.
+ *
+ * @param {string} email - 공백 제거가 완료된 이메일입니다.
+ * @returns {boolean} 유효하면 true를 반환합니다.
+ */
+function validateEmail(email) {
     if (email === '') {
-        showError(
-            emailInput,
-            emailError,
-            '이메일을 입력해주세요.'
-        );
-
+        showError(elements.emailInput, elements.emailError, '이메일을 입력해주세요.');
         return false;
     }
 
     if (!EMAIL_PATTERN.test(email)) {
         showError(
-            emailInput,
-            emailError,
+            elements.emailInput,
+            elements.emailError,
             '올바른 이메일 형식을 입력해주세요.'
         );
-
         return false;
     }
 
-    clearError(emailInput, emailError);
-
+    clearError(elements.emailInput, elements.emailError);
     return true;
-};
+}
 
-const validateMessage = (message) => {
+/**
+ * 메시지 입력값을 검증합니다.
+ *
+ * @param {string} message - 공백 제거가 완료된 메시지입니다.
+ * @returns {boolean} 유효하면 true를 반환합니다.
+ */
+function validateMessage(message) {
     if (message === '') {
         showError(
-            messageInput,
-            messageError,
+            elements.messageInput,
+            elements.messageError,
             '메시지를 입력해주세요.'
         );
-
         return false;
     }
 
-    clearError(messageInput, messageError);
-
+    clearError(elements.messageInput, elements.messageError);
     return true;
-};
+}
 
-const sendContactForm = async () => {
-    const formData = new FormData(contactForm);
-    const response =
-        await fetch(
-            FORMSPREE_ENDPOINT,
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json'
-                },
-                body: formData
-            }
-        );
+/**
+ * Contact Form의 모든 사용자 입력을 검증합니다.
+ *
+ * @returns {boolean} 모든 필드가 유효하면 true를 반환합니다.
+ */
+function validateContactForm() {
+    const name = elements.nameInput.value.trim();
+    const email = elements.emailInput.value.trim();
+    const message = elements.messageInput.value.trim();
+
+    const isNameValid = validateName(name);
+    const isEmailValid = validateEmail(email);
+    const isMessageValid = validateMessage(message);
+
+    return isNameValid && isEmailValid && isMessageValid;
+}
+
+/**
+ * Formspree로 Contact Form 데이터를 전송합니다.
+ *
+ * @returns {Promise<void>}
+ * @throws {Error} 응답 상태가 정상 범위가 아니면 예외를 발생시킵니다.
+ */
+async function sendContactForm() {
+    const formData = new FormData(elements.contactForm);
+    const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json'
+        },
+        body: formData
+    });
 
     if (!response.ok) {
         throw new Error(`Form 전송 실패: ${response.status}`);
     }
-};
+}
 
-contactForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+/**
+ * Contact Form 상태 메시지를 초기화합니다.
+ *
+ * @returns {void}
+ */
+function clearFormStatus() {
+    elements.formStatus.textContent = '';
+    elements.formStatus.classList.remove('success', 'error');
+}
 
-        const name =nameInput.value.trim();
-        const email = emailInput.value.trim();
-        const message = messageInput.value.trim();
+/**
+ * Contact Form 전송 버튼의 로딩 상태를 설정합니다.
+ *
+ * @param {boolean} isSubmitting - 전송 중 여부입니다.
+ * @returns {void}
+ */
+function setContactFormSubmitting(isSubmitting) {
+    elements.submitButton.disabled = isSubmitting;
+    elements.submitButton.textContent = isSubmitting ? '전송 중...' : '보내기';
+}
 
-        clearFormStatus();
-
-        const isNameValid = validateName(name);
-
-        const isEmailValid = validateEmail(email);
-
-        const isMessageValid = validateMessage(message);
-
-        if (!isNameValid || !isEmailValid || !isMessageValid) {
-            return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = '전송 중...';
-
-        try {
-            await sendContactForm();
-
-            formStatus.textContent = '메시지가 정상적으로 전송되었습니다.';
-
-            formStatus.classList.add('success');
-
-            contactForm.reset();
-        } catch (error) {
-            console.error('Contact Form 전송 중 오류가 발생했습니다.', error);
-
-            formStatus.textContent = '메시지 전송에 실패했습니다. 다시 시도해주세요.';
-            formStatus.classList.add('error');
-        } finally {
-            submitButton.disabled = false;
-            submitButton.textContent = '보내기';
-        }
-    }
-);
-
-const clearFormStatus = () => {
-    formStatus.textContent = '';
-    formStatus.classList.remove('success', 'error');
-};
-
-nameInput.addEventListener('input', () => {
+/**
+ * Contact Form 제출을 검증하고 서버 전송 결과를 화면에 표시합니다.
+ *
+ * @param {SubmitEvent} event - Form submit 이벤트입니다.
+ * @returns {Promise<void>}
+ */
+async function handleContactFormSubmit(event) {
+    event.preventDefault();
     clearFormStatus();
 
-    if (!nameInput.classList.contains('input-error')) {
+    if (!validateContactForm()) {
         return;
     }
 
-    const name = nameInput.value.trim();
+    setContactFormSubmitting(true);
 
-    validateName(name);
-});
+    try {
+        await sendContactForm();
+        elements.formStatus.textContent = '메시지가 정상적으로 전송되었습니다.';
+        elements.formStatus.classList.add('success');
+        elements.contactForm.reset();
+    } catch (error) {
+        console.error('Contact Form 전송 중 오류가 발생했습니다.', error);
+        elements.formStatus.textContent = '메시지 전송에 실패했습니다. 다시 시도해주세요.';
+        elements.formStatus.classList.add('error');
+    } finally {
+        setContactFormSubmitting(false);
+    }
+}
 
-emailInput.addEventListener('input', () => {
+/**
+ * 오류 상태인 입력 필드만 다시 검증합니다.
+ *
+ * @param {HTMLInputElement|HTMLTextAreaElement} input - 입력 필드입니다.
+ * @param {(value: string) => boolean} validator - 필드 검증 함수입니다.
+ * @returns {void}
+ */
+function revalidateErroredField(input, validator) {
     clearFormStatus();
 
-    if (!emailInput.classList.contains('input-error')) {
+    if (!input.classList.contains('input-error')) {
         return;
     }
 
-    validateEmail(emailInput.value.trim());
-});
+    validator(input.value.trim());
+}
 
-messageInput.addEventListener('input', () => {
-    clearFormStatus();
+/**
+ * 이름 입력 이벤트를 처리합니다.
+ *
+ * @returns {void}
+ */
+function handleNameInput() {
+    revalidateErroredField(elements.nameInput, validateName);
+}
 
-    if (!messageInput.classList.contains('input-error')) {
-        return;
-    }
+/**
+ * 이메일 입력 이벤트를 처리합니다.
+ *
+ * @returns {void}
+ */
+function handleEmailInput() {
+    revalidateErroredField(elements.emailInput, validateEmail);
+}
 
-    validateMessage(messageInput.value.trim());
-});
+/**
+ * 메시지 입력 이벤트를 처리합니다.
+ *
+ * @returns {void}
+ */
+function handleMessageInput() {
+    revalidateErroredField(elements.messageInput, validateMessage);
+}
 
-// ========================================
-// GitHub Projects
-// ========================================
-const GITHUB_USERNAME = 'nothingOld';
-const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
+/**
+ * Contact Form 이벤트를 등록합니다.
+ *
+ * @returns {void}
+ */
+function initializeContactForm() {
+    elements.contactForm.addEventListener('submit', handleContactFormSubmit);
+    elements.nameInput.addEventListener('input', handleNameInput);
+    elements.emailInput.addEventListener('input', handleEmailInput);
+    elements.messageInput.addEventListener('input', handleMessageInput);
+}
 
-let allRepositories = [];
-let selectedLanguage = 'all';
+/* ========================================
+   GitHub Projects
+======================================== */
+/**
+ * 프로젝트 로딩 상태를 화면에 표시합니다.
+ *
+ * @returns {void}
+ */
+function showProjectLoading() {
+    elements.projectStatus.classList.add('loading');
+    elements.projectStatus.textContent = '프로젝트를 불러오는 중...';
+    elements.projectFilters.hidden = true;
+    elements.projectList.textContent = '';
+}
 
-const showProjectLoading = () => {
-    projectStatus.classList.add('loading');
-    projectFilters.hidden = true;
-    projectList.textContent = '';
+/**
+ * 프로젝트 로딩 상태를 제거합니다.
+ *
+ * @returns {void}
+ */
+function showProjectLoaded() {
+    elements.projectStatus.classList.remove('loading');
+    elements.projectStatus.textContent = '';
+}
 
-    projectStatus.innerHTML = '<span>프로젝트를 불러오는 중...</span>';
-};
+/**
+ * 프로젝트가 없는 상태를 화면에 표시합니다.
+ *
+ * @returns {void}
+ */
+function showProjectEmpty() {
+    elements.projectStatus.classList.remove('loading');
+    elements.projectStatus.textContent = '표시할 프로젝트가 없습니다.';
+    elements.projectList.textContent = '';
+    elements.projectFilters.hidden = true;
+}
 
-const showProjectLoaded = () => {
-    projectStatus.classList.remove('loading');
-    projectStatus.textContent = '';
-};
+/**
+ * GitHub API 오류 메시지와 재시도 버튼을 표시합니다.
+ *
+ * @param {Error & {status?: number}} error - GitHub API 요청 중 발생한 오류입니다.
+ * @returns {void}
+ */
+function showProjectError(error) {
+    elements.projectStatus.classList.remove('loading');
+    elements.projectList.textContent = '';
+    elements.projectFilters.hidden = true;
 
-const showProjectError = (error) => {
-    projectStatus.classList.remove('loading');
-    projectList.textContent = '';
-    projectFilters.hidden = true;
-
-    const errorMessage =
-        error.status === 403
-            ? 'GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.'
-            : '프로젝트를 불러올 수 없습니다.';
-
-    projectStatus.textContent = errorMessage;
+    const errorMessage = error.status === 403
+        ? 'GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.'
+        : '프로젝트를 불러올 수 없습니다.';
 
     const retryButton = document.createElement('button');
-
     retryButton.type = 'button';
-    retryButton.classList.add(
-        'btn',
-        'btn-secondary',
-        'project-retry-button'
-    );
+    retryButton.classList.add('btn', 'btn-secondary', 'project-retry-button');
     retryButton.textContent = '다시 시도';
+    retryButton.addEventListener('click', fetchRepositories, { once: true });
 
-    retryButton.addEventListener('click', () => {
-        fetchRepositories();
-    });
+    elements.projectStatus.textContent = errorMessage;
+    elements.projectStatus.append(retryButton);
+}
 
-    projectStatus.append(retryButton);
-};
-
-const fetchRepositories = async () => {
+/**
+ * GitHub Repository API에서 저장소 목록을 불러오고 STATE를 갱신합니다.
+ *
+ * @returns {Promise<void>}
+ */
+async function fetchRepositories() {
     showProjectLoading();
 
     try {
@@ -383,80 +591,30 @@ const fetchRepositories = async () => {
         const repositories = await response.json();
 
         if (repositories.length === 0) {
+            STATE.repositories = [];
+            STATE.selectedLanguage = 'all';
             showProjectEmpty();
             return;
         }
 
-        allRepositories = repositories;
-        selectedLanguage = 'all';
+        STATE.repositories = repositories;
+        STATE.selectedLanguage = 'all';
 
-        createProjectFilters(allRepositories);
+        createProjectFilters();
         renderFilteredProjects();
     } catch (error) {
         console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
-
         showProjectError(error);
     }
-};
+}
 
-projectFilters.addEventListener('click', (event) => {
-    const button =
-        event.target.closest('.project-filter-button');
-
-    if (!button) {
-        return;
-    }
-
-    selectedLanguage =
-        button.dataset.language;
-
-    updateProjectFilterButtons();
-    renderFilteredProjects();
-});
-
-fetchRepositories();
-
-const createProjectCard = (project) => {
-    const article = document.createElement('article');
-    article.classList.add('project-card');
-
-    const title = document.createElement('h3');
-    title.classList.add('project-card-title');
-    title.textContent = project.name;
-
-    const description = document.createElement('p');
-    description.classList.add('project-card-description');
-    description.textContent = project.description;
-
-    const meta = document.createElement('div');
-    meta.classList.add('project-card-meta');
-
-    const language = document.createElement('span');
-    language.textContent = `Language: ${project.language}`;
-
-    const stars = document.createElement('span');
-    stars.textContent = `Stars: ${project.starCount}`;
-
-    const link = document.createElement('a');
-    link.classList.add('project-card-link');
-    link.href = project.htmlUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = 'GitHub에서 보기';
-
-    meta.append(language, stars);
-
-    article.append(
-        title,
-        description,
-        meta,
-        link
-    );
-
-    return article;
-};
-
-const getRepositoryLanguages = (repositories) => {
+/**
+ * Repository 목록에서 중복 없는 프로그래밍 언어 목록을 생성합니다.
+ *
+ * @param {Array<Object>} repositories - GitHub Repository 목록입니다.
+ * @returns {Array<string>} 오름차순으로 정렬된 언어 목록입니다.
+ */
+function getRepositoryLanguages(repositories) {
     return [
         ...new Set(
             repositories
@@ -464,161 +622,225 @@ const getRepositoryLanguages = (repositories) => {
                 .filter(Boolean)
         )
     ].sort();
-};
+}
 
-const createProjectFilters = (repositories) => {
-    const languages =
-        getRepositoryLanguages(repositories);
+/**
+ * 프로젝트 필터 버튼을 STATE의 Repository 목록을 기준으로 생성합니다.
+ *
+ * @returns {void}
+ */
+function createProjectFilters() {
+    const languages = getRepositoryLanguages(STATE.repositories);
 
-    projectFilters.textContent = '';
+    elements.projectFilters.textContent = '';
 
     if (languages.length === 0) {
-        projectFilters.hidden = true;
+        elements.projectFilters.hidden = true;
         return;
     }
 
-    const filterLanguages = [
-        'all',
-        ...languages
-    ];
-
-    filterLanguages.forEach((language) => {
-        const button =
-            document.createElement('button');
+    ['all', ...languages].forEach((language) => {
+        const button = document.createElement('button');
+        const isActive = language === STATE.selectedLanguage;
 
         button.type = 'button';
-
-        button.classList.add(
-            'project-filter-button'
-        );
-
+        button.classList.add('project-filter-button');
+        button.classList.toggle('active', isActive);
         button.dataset.language = language;
+        button.textContent = language === 'all' ? '전체' : language;
+        button.setAttribute('aria-pressed', String(isActive));
 
-        button.textContent =
-            language === 'all'
-                ? '전체'
-                : language;
-
-        const isActive =
-            language === selectedLanguage;
-
-        button.classList.toggle(
-            'active',
-            isActive
-        );
-
-        button.setAttribute(
-            'aria-pressed',
-            String(isActive)
-        );
-
-        projectFilters.append(button);
+        elements.projectFilters.append(button);
     });
 
-    projectFilters.hidden = false;
-};
+    elements.projectFilters.hidden = false;
+}
 
-const updateProjectFilterButtons = () => {
-    const filterButtons =
-        projectFilters.querySelectorAll(
-            '.project-filter-button'
-        );
+/**
+ * STATE의 선택 언어에 맞게 필터 버튼 활성 상태를 갱신합니다.
+ *
+ * @returns {void}
+ */
+function updateProjectFilterButtons() {
+    const filterButtons = elements.projectFilters.querySelectorAll(
+        '.project-filter-button'
+    );
 
     filterButtons.forEach((button) => {
-        const isActive =
-            button.dataset.language ===
-            selectedLanguage;
+        const isActive = button.dataset.language === STATE.selectedLanguage;
 
-        button.classList.toggle(
-            'active',
-            isActive
-        );
-
-        button.setAttribute(
-            'aria-pressed',
-            String(isActive)
-        );
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
     });
-};
+}
 
-const renderFilteredProjects = () => {
-    const filteredRepositories =
-        selectedLanguage === 'all'
-            ? allRepositories
-            : allRepositories.filter(
-                (repository) =>
-                    repository.language ===
-                    selectedLanguage
-            );
+/**
+ * 프로젝트 필터 영역의 클릭 이벤트를 처리합니다.
+ *
+ * @param {MouseEvent} event - 필터 영역의 클릭 이벤트입니다.
+ * @returns {void}
+ */
+function handleProjectFilterClick(event) {
+    const button = event.target.closest('.project-filter-button');
+
+    if (!button || !elements.projectFilters.contains(button)) {
+        return;
+    }
+
+    STATE.selectedLanguage = button.dataset.language;
+    updateProjectFilterButtons();
+    renderFilteredProjects();
+}
+
+/**
+ * STATE의 선택 언어에 따라 Repository를 필터링하고 화면에 렌더링합니다.
+ *
+ * @returns {void}
+ */
+function renderFilteredProjects() {
+    const filteredRepositories = STATE.selectedLanguage === 'all'
+        ? STATE.repositories
+        : STATE.repositories.filter(
+            (repository) => repository.language === STATE.selectedLanguage
+        );
 
     if (filteredRepositories.length === 0) {
-        projectList.textContent = '';
-
-        projectStatus.textContent =
-            '해당 언어의 프로젝트가 없습니다.';
-
+        elements.projectList.textContent = '';
+        elements.projectStatus.textContent = '해당 언어의 프로젝트가 없습니다.';
         return;
     }
 
     renderProjects(filteredRepositories);
     showProjectLoaded();
-};
+}
 
-const renderProjects = (repositories) => {
-    projectList.textContent = '';
+/**
+ * GitHub API Repository 데이터를 화면 표시용 데이터로 변환합니다.
+ *
+ * @param {Object} repository - GitHub Repository 데이터입니다.
+ * @returns {{
+ *   name: string,
+ *   description: string,
+ *   htmlUrl: string,
+ *   language: string,
+ *   starCount: number
+ * }} 화면 표시용 프로젝트 데이터입니다.
+ */
+function mapRepositoryToProject(repository) {
+    const {
+        name,
+        description,
+        html_url: htmlUrl,
+        language,
+        stargazers_count: starCount
+    } = repository;
 
-    const projects = repositories.map((repository) => {
-        const {
-            name,
-            description,
-            html_url: htmlUrl,
-            language,
-            stargazers_count: starCount
-        } = repository;
+    return {
+        name,
+        description: description ?? '프로젝트 설명이 없습니다.',
+        htmlUrl,
+        language: language ?? 'N/A',
+        starCount
+    };
+}
 
-        return {
-            name,
-            description: description ?? '프로젝트 설명이 없습니다.',
-            htmlUrl,
-            language: language ?? 'N/A',
-            starCount
-        };
-    });
+/**
+ * 프로젝트 카드 DOM 요소를 생성합니다.
+ *
+ * @param {{
+ *   name: string,
+ *   description: string,
+ *   htmlUrl: string,
+ *   language: string,
+ *   starCount: number
+ * }} project - 화면에 표시할 프로젝트 데이터입니다.
+ * @returns {HTMLElement} 완성된 프로젝트 카드 요소입니다.
+ */
+function createProjectCard(project) {
+    const article = document.createElement('article');
+    const title = document.createElement('h3');
+    const description = document.createElement('p');
+    const meta = document.createElement('div');
+    const language = document.createElement('span');
+    const stars = document.createElement('span');
+    const link = document.createElement('a');
 
-    projects.forEach((project) => {
-        const projectCard = createProjectCard(project);
+    article.classList.add('project-card');
 
-        projectList.append(projectCard);
-    });
-};
+    title.classList.add('project-card-title');
+    title.textContent = project.name;
 
-const showProjectEmpty = () => {
-    projectStatus.classList.remove('loading');
-    projectStatus.textContent = '표시할 프로젝트가 없습니다.';
-    projectList.textContent = '';
-    projectFilters.hidden = true;
-};
+    description.classList.add('project-card-description');
+    description.textContent = project.description;
 
-const TYPING_SPEED = 50;
+    meta.classList.add('project-card-meta');
+    language.textContent = `Language: ${project.language}`;
+    stars.textContent = `Stars: ${project.starCount}`;
+    meta.append(language, stars);
 
-const runTypingEffect = () => {
-    const typingText = heroDescription.textContent.trim();
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    link.classList.add('project-card-link');
+    link.href = project.htmlUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'GitHub에서 보기';
 
-    if (typingText === '' || prefersReducedMotion) {
+    article.append(title, description, meta, link);
+    return article;
+}
+
+/**
+ * Repository 목록을 프로젝트 카드 목록으로 렌더링합니다.
+ *
+ * @param {Array<Object>} repositories - 렌더링할 GitHub Repository 목록입니다.
+ * @returns {void}
+ */
+function renderProjects(repositories) {
+    const fragment = document.createDocumentFragment();
+
+    repositories
+        .map(mapRepositoryToProject)
+        .forEach((project) => {
+            fragment.append(createProjectCard(project));
+        });
+
+    elements.projectList.replaceChildren(fragment);
+}
+
+/**
+ * GitHub 프로젝트 관련 이벤트를 등록하고 Repository를 최초 로드합니다.
+ *
+ * @returns {void}
+ */
+function initializeProjects() {
+    elements.projectFilters.addEventListener('click', handleProjectFilterClick);
+    fetchRepositories();
+}
+
+/* ========================================
+   Typing Effect
+======================================== */
+/**
+ * Hero 설명 문구를 한 글자씩 표시하는 타이핑 효과를 실행합니다.
+ * 애니메이션 감소 설정이 활성화된 경우 원문을 그대로 유지합니다.
+ *
+ * @returns {void}
+ */
+function runTypingEffect() {
+    const typingText = elements.heroDescription.textContent.trim();
+
+    if (typingText === '' || reducedMotionMediaQuery.matches) {
         return;
     }
-
-    heroDescription.textContent = '';
-    heroDescription.setAttribute('aria-label', typingText);
-    heroDescription.classList.add('typing');
 
     const characters = Array.from(typingText);
     let currentIndex = 0;
 
-    const typeNextCharacter = () => {
-        heroDescription.textContent += characters[currentIndex];
+    elements.heroDescription.textContent = '';
+    elements.heroDescription.setAttribute('aria-label', typingText);
+    elements.heroDescription.classList.add('typing');
 
+    function typeNextCharacter() {
+        elements.heroDescription.textContent += characters[currentIndex];
         currentIndex += 1;
 
         if (currentIndex < characters.length) {
@@ -626,10 +848,28 @@ const runTypingEffect = () => {
             return;
         }
 
-        heroDescription.classList.remove('typing');
-    };
+        elements.heroDescription.classList.remove('typing');
+    }
 
     typeNextCharacter();
-};
+}
 
-runTypingEffect();
+/* ========================================
+   Application Initialization
+======================================== */
+/**
+ * 페이지에서 사용하는 모든 기능을 초기화합니다.
+ *
+ * @returns {void}
+ */
+function initializeApp() {
+    initializeTheme();
+    initializeNavigation();
+    initializeThemeEvents();
+    initializeRevealAnimation();
+    initializeContactForm();
+    initializeProjects();
+    runTypingEffect();
+}
+
+initializeApp();

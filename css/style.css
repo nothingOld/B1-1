@@ -1,3 +1,6 @@
+/* ========================================
+   Design Tokens
+======================================== */
 :root {
     --background-color: #ffffff;
     --text-color: #222222;
@@ -5,10 +8,25 @@
     --button-text-color: #ffffff;
     --border-color: #dddddd;
     --header-scrolled-background: #f5f5f5;
+    --success-color: #188038;
+    --error-color: #d93025;
+    --focus-ring-color: #1a73e8;
+
+    --shadow-small: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.1);
+    --shadow-large: 0 10px 24px rgba(0, 0, 0, 0.12);
 
     --spacing-small: 8px;
     --spacing-medium: 16px;
     --spacing-large: 32px;
+    --section-spacing: 80px;
+
+    --content-width: 1200px;
+    --form-width: 800px;
+
+    --radius-small: 6px;
+    --radius-medium: 8px;
+    --radius-large: 12px;
 }
 
 [data-theme="dark"] {
@@ -16,12 +34,16 @@
     --text-color: #ffffff;
     --border-color: #444444;
     --header-scrolled-background: #1f1f1f;
+    --focus-ring-color: #8ab4f8;
 }
 
+/* ========================================
+   Reset / Base
+======================================== */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html {
@@ -32,7 +54,6 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;
-
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -46,24 +67,73 @@ ul {
 }
 
 button {
+    color: inherit;
     font: inherit;
     cursor: pointer;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--focus-ring-color);
+    outline-offset: 3px;
+}
+
+section {
+    padding: var(--section-spacing) var(--spacing-medium);
+}
+
+.section-title {
+    margin-bottom: var(--spacing-large);
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* ========================================
+   Shared Components
+======================================== */
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-small);
+    text-align: center;
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        transform 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+/* ========================================
+   Header / Navigation
+======================================== */
 .header {
     position: sticky;
     top: 0;
     z-index: 100;
-
     width: 100%;
     background-color: var(--background-color);
-
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .header.scrolled {
     background-color: var(--header-scrolled-background);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-small);
 }
 
 .header.scrolled .nav-menu {
@@ -72,12 +142,10 @@ button {
 
 .navbar {
     position: relative;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    max-width: 1200px;
+    max-width: var(--content-width);
     margin: 0 auto;
     padding: var(--spacing-medium);
 }
@@ -88,21 +156,16 @@ button {
 }
 
 .nav-menu {
-    display: none;
-
-    flex-direction: column;
-    gap: var(--spacing-medium);
-
     position: absolute;
     top: 100%;
     left: 0;
-
+    display: none;
+    flex-direction: column;
+    gap: var(--spacing-medium);
     width: 100%;
     padding: var(--spacing-medium);
-
     background-color: var(--background-color);
     border-bottom: 1px solid var(--border-color);
-
     transition: background-color 0.3s;
 }
 
@@ -124,17 +187,19 @@ button {
     font-size: 1.25rem;
 }
 
+/* ========================================
+   Hero
+======================================== */
 .hero {
-    min-height: calc(100vh - 64px);
     display: flex;
     align-items: center;
-
+    min-height: calc(100vh - 64px);
     padding: var(--spacing-large) var(--spacing-medium);
 }
 
 .hero-content {
     width: 100%;
-    max-width: 1200px;
+    max-width: var(--content-width);
     margin: 0 auto;
 }
 
@@ -157,11 +222,15 @@ button {
 
 .hero-description.typing::after {
     content: "|";
-
     display: inline-block;
     margin-left: 2px;
-
     animation: typing-cursor-blink 0.8s infinite;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small);
 }
 
 @keyframes typing-cursor-blink {
@@ -176,60 +245,21 @@ button {
     }
 }
 
-.hero-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-small);
-}
-
-.btn {
-    display: inline-block;
-    padding: 12px 20px;
-    border: 1px solid var(--primary-color);
-    border-radius: 6px;
-
-    text-align: center;
-
-    transition:
-        background-color 0.3s,
-        color 0.3s,
-        transform 0.3s;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: var(--button-text-color);
-}
-
-.btn-secondary {
-    background-color: transparent;
-    color: var(--text-color);
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-}
-
-section {
-    padding: 80px var(--spacing-medium);
-}
-
-.section-title {
-    margin-bottom: var(--spacing-large);
-    font-size: 2rem;
-    text-align: center;
-}
-
-.about-container {
-    max-width: 1200px;
+/* ========================================
+   About
+======================================== */
+.about-container,
+.skills-container,
+.projects-container {
+    max-width: var(--content-width);
     margin: 0 auto;
 }
 
 .about-content {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-large);
     align-items: center;
+    gap: var(--spacing-large);
 }
 
 .about-image {
@@ -241,7 +271,7 @@ section {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 12px;
+    border-radius: var(--radius-large);
 }
 
 .about-text {
@@ -253,11 +283,9 @@ section {
     line-height: 1.7;
 }
 
-.skills-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
+/* ========================================
+   Skills
+======================================== */
 .skills-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -267,32 +295,25 @@ section {
 .skill-item {
     padding: var(--spacing-medium);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-
-    text-align: center;
+    border-radius: var(--radius-medium);
     font-weight: 600;
-
-    transition:
-        transform 0.3s,
-        box-shadow 0.3s;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .skill-item:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-medium);
 }
 
-.projects-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
+/* ========================================
+   Projects
+======================================== */
 .project-filters {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--spacing-small);
-
     margin-bottom: var(--spacing-large);
 }
 
@@ -302,15 +323,10 @@ section {
 
 .project-filter-button {
     padding: 8px 16px;
-
     border: 1px solid var(--border-color);
     border-radius: 20px;
-
     background-color: transparent;
     color: var(--text-color);
-
-    cursor: pointer;
-
     transition:
         background-color 0.3s,
         color 0.3s,
@@ -324,39 +340,18 @@ section {
 
 .project-filter-button.active {
     border-color: var(--primary-color);
-
     background-color: var(--primary-color);
     color: var(--button-text-color);
 }
 
 .project-status {
     margin-bottom: var(--spacing-large);
-    text-align: center;
     line-height: 1.6;
+    text-align: center;
 }
 
 .project-status:empty {
     margin-bottom: 0;
-}
-
-.project-card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-medium);
-
-    margin-bottom: var(--spacing-medium);
-    font-size: 0.875rem;
-}
-
-.project-card-link {
-    font-weight: 600;
-    text-decoration: underline;
-
-    transition: opacity 0.3s;
-}
-
-.project-card-link:hover {
-    opacity: 0.7;
 }
 
 .project-status.loading {
@@ -365,8 +360,7 @@ section {
 
 .project-grid {
     display: grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-large);
 }
 
@@ -374,16 +368,13 @@ section {
     padding: var(--spacing-large);
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-    transition:
-        transform 0.3s,
-        box-shadow 0.3s;
+    box-shadow: var(--shadow-small);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .project-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-large);
 }
 
 .project-card-title {
@@ -397,6 +388,9 @@ section {
 }
 
 .project-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
     margin-bottom: var(--spacing-medium);
     font-size: 0.875rem;
 }
@@ -404,6 +398,11 @@ section {
 .project-card-link {
     font-weight: 600;
     text-decoration: underline;
+    transition: opacity 0.3s;
+}
+
+.project-card-link:hover {
+    opacity: 0.7;
 }
 
 .project-retry-button {
@@ -411,8 +410,11 @@ section {
     margin: var(--spacing-medium) auto 0;
 }
 
+/* ========================================
+   Contact Form
+======================================== */
 .contact-container {
-    max-width: 800px;
+    max-width: var(--form-width);
     margin: 0 auto;
 }
 
@@ -432,18 +434,15 @@ section {
     font-weight: 600;
 }
 
-.form-group input, .form-group textarea {
+.form-group input,
+.form-group textarea {
     width: 100%;
     padding: 12px 14px;
-
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-
+    border-radius: var(--radius-medium);
     background-color: var(--background-color);
     color: var(--text-color);
-
     font: inherit;
-
     transition:
         border-color 0.3s,
         box-shadow 0.3s,
@@ -455,31 +454,36 @@ section {
     resize: vertical;
 }
 
-.form-group input:focus, .form-group textarea:focus {
-    outline: none;
+.form-group input:focus,
+.form-group textarea:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+}
+
+.form-group input.input-error,
+.form-group textarea.input-error {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1);
 }
 
 .form-error {
     min-height: 1.2em;
+    color: var(--error-color);
     font-size: 0.875rem;
-    color: #d93025;
 }
 
 .form-status {
     min-height: 1.2em;
-    text-align: center;
+    color: var(--success-color);
     font-weight: 600;
-    color: #188038;
+    text-align: center;
 }
 
 .form-status.success {
-    color: #188038;
+    color: var(--success-color);
 }
 
 .form-status.error {
-    color: #d93025;
+    color: var(--error-color);
 }
 
 .submit-button:disabled {
@@ -487,25 +491,22 @@ section {
     opacity: 0.6;
 }
 
+/* ========================================
+   Scroll / Reveal Effects
+======================================== */
 .scroll-top-button {
     position: fixed;
     right: var(--spacing-medium);
     bottom: var(--spacing-medium);
-
     width: 48px;
     height: 48px;
-
     border: none;
     border-radius: 50%;
-
     background-color: var(--primary-color);
     color: var(--button-text-color);
-
     font-size: 1.25rem;
-
     opacity: 0;
     visibility: hidden;
-
     transition:
         opacity 0.3s,
         visibility 0.3s,
@@ -521,21 +522,33 @@ section {
     transform: translateY(-3px);
 }
 
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================
+   Footer
+======================================== */
 .footer {
     border-top: 1px solid var(--border-color);
     background-color: var(--background-color);
 }
 
 .footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--spacing-large) var(--spacing-medium);
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-medium);
-
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--spacing-large) var(--spacing-medium);
     text-align: center;
 }
 
@@ -553,50 +566,43 @@ section {
     opacity: 0.7;
 }
 
-.reveal {
-    opacity: 0;
-    transform: translateY(30px);
-
-    transition:opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.form-group input.input-error, .form-group textarea.input-error {
-    border-color: #d93025;
-    box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1);
-}
-
-/* OS에서 애니메이션 감소 설정 되어있는 경우를 고려 */
+/* ========================================
+   Accessibility
+======================================== */
 @media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
     .reveal {
         opacity: 1;
         transform: none;
         transition: none;
     }
+
+    .hero-description.typing::after {
+        animation: none;
+    }
 }
 
-/* tablet */
+/* ========================================
+   Tablet: 768px+
+======================================== */
 @media (min-width: 768px) {
     .nav-menu {
-        display: flex;
-
         position: static;
-        width: auto;
-        padding: 0;
-
+        display: flex;
         flex-direction: row;
         align-items: center;
         gap: var(--spacing-large);
-
+        width: auto;
+        padding: 0;
         background-color: transparent;
         border-bottom: none;
     }
 
-    .nav-menu, .header.scrolled .nav-menu {
+    .nav-menu,
+    .header.scrolled .nav-menu {
         background-color: transparent;
     }
 
@@ -622,7 +628,8 @@ section {
         justify-content: center;
     }
 
-    .about-image, .about-text {
+    .about-image,
+    .about-text {
         flex: 1;
     }
 
@@ -647,7 +654,9 @@ section {
     }
 }
 
-/* desktop */
+/* ========================================
+   Desktop: 1024px+
+======================================== */
 @media (min-width: 1024px) {
     .hero-title {
         font-size: 4rem;
