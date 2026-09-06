@@ -9,16 +9,34 @@
     <script src="js/main.js" defer></script>
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="#">Logo</a>
+    <header class="header">
+        <nav class="navbar">
+            <a href="#hero" class="logo">Portfolio</a>
 
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
+            <ul class="nav-menu">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
+
+            <div class="nav-actions">
+                <button
+                    type="button"
+                    class="theme-toggle"
+                    aria-label="다크 모드 전환"
+                >
+                    D
+                </button>
+
+                <button
+                    type="button"
+                    class="hamburger"
+                    aria-label="메뉴 열기"
+                >
+                    ☰
+                </button>
+            </div>
         </nav>
     </header>
 

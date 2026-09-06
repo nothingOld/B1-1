@@ -1,3 +1,100 @@
-manin {
-    font-size: 10px;
+:root {
+    --background-color: #ffffff;
+    --text-color: #222222;
+    --primary-color: #333333;
+    --spacing-small: 8px;
+    --spacing-medium: 16px;
+    --spacing-large: 32px;
+}
+
+[data-theme="dark"] {
+    --background-color: #121212;
+    --text-color: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.header {
+    width: 100%;
+    background-color: var(--background-color);
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-medium);
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* mobile에서는 navigation 메뉴 숨기기 */
+.nav-menu {
+    display: none;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+}
+
+.theme-toggle,
+.hamburger {
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 1.25rem;
+}
+
+/* tablet */
+@media (min-width: 768px) {
+    .nav-menu {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-large);
+    }
+
+    .hamburger {
+        display: none;
+    }
+}
+
+/* desktop */
+@media (min-width: 1024px) {
+
 }
