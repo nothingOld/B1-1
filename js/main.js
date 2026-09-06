@@ -129,3 +129,99 @@ const observer = new IntersectionObserver((entries) => {
 revealElements.forEach((element) => {
     observer.observe(element);
 });
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const showError = (input, errorElement, message) => {
+    errorElement.textContent = message;
+    input.classList.add('input-error');
+    input.setAttribute('aria-invalid', 'true');
+};
+
+const clearError = (input, errorElement) => {
+    errorElement.textContent = '';
+    input.classList.remove('input-error');
+    input.setAttribute('aria-invalid', 'false');
+};
+
+const validateName = (name) => {
+    if (name === '') {
+        showError(
+            nameInput,
+            nameError,
+            '이름을 입력해주세요.'
+        );
+
+        return false;
+    }
+
+    clearError(nameInput, nameError);
+
+    return true;
+};
+
+const validateEmail = (email) => {
+    if (email === '') {
+        showError(
+            emailInput,
+            emailError,
+            '이메일을 입력해주세요.'
+        );
+
+        return false;
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+        showError(
+            emailInput,
+            emailError,
+            '올바른 이메일 형식을 입력해주세요.'
+        );
+
+        return false;
+    }
+
+    clearError(emailInput, emailError);
+
+    return true;
+};
+
+const validateMessage = (message) => {
+    if (message === '') {
+        showError(
+            messageInput,
+            messageError,
+            '메시지를 입력해주세요.'
+        );
+
+        return false;
+    }
+
+    clearError(messageInput, messageError);
+
+    return true;
+};
+
+contactForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const message = messageInput.value.trim();
+
+    formSuccess.textContent = '';
+
+    const isNameValid = validateName(name);
+    const isEmailValid = validateEmail(email);
+    const isMessageValid = validateMessage(message);
+
+    if (
+        !isNameValid ||
+        !isEmailValid ||
+        !isMessageValid
+    ) {
+        return;
+    }
+
+    formSuccess.textContent = '입력 내용이 정상적으로 확인되었습니다.';
+});
