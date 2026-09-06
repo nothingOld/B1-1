@@ -3,6 +3,7 @@
     --text-color: #222222;
     --primary-color: #333333;
     --button-text-color: #ffffff;
+    --border-color: #dddddd;
 
     --spacing-small: 8px;
     --spacing-medium: 16px;
@@ -12,6 +13,7 @@
 [data-theme="dark"] {
     --background-color: #121212;
     --text-color: #ffffff;
+    --border-color: #444444;
 }
 
 * {
@@ -191,6 +193,35 @@ section {
     line-height: 1.7;
 }
 
+.skills-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.skills-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-medium);
+}
+
+.skill-item {
+    padding: var(--spacing-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    text-align: center;
+    font-weight: 600;
+
+    transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+}
+
+.skill-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
 /* tablet */
 @media (min-width: 768px) {
     .nav-menu {
@@ -221,9 +252,12 @@ section {
         justify-content: center;
     }
 
-    .about-image,
-    .about-text {
+    .about-image, .about-text {
         flex: 1;
+    }
+
+    .skills-list {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -239,5 +273,9 @@ section {
 
     .section-title {
         font-size: 2.5rem;
+    }
+
+    .skills-list {
+        grid-template-columns: repeat(6, 1fr);
     }
 }
