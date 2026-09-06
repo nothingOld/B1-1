@@ -467,11 +467,24 @@ section {
     color: #d93025;
 }
 
-.form-success {
+.form-status {
     min-height: 1.2em;
     text-align: center;
     font-weight: 600;
     color: #188038;
+}
+
+.form-status.success {
+    color: #188038;
+}
+
+.form-status.error {
+    color: #d93025;
+}
+
+.submit-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .scroll-top-button {

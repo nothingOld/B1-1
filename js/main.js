@@ -1,3 +1,5 @@
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwlknzen';
+
 const header = document.querySelector('.header');
 
 const hamburgerButton = document.querySelector('.hamburger');
@@ -16,7 +18,8 @@ const messageInput = document.querySelector('#message');
 const nameError = document.querySelector('#name-error');
 const emailError = document.querySelector('#email-error');
 const messageError = document.querySelector('#message-error');
-const formSuccess = document.querySelector('#form-success');
+const formStatus = document.querySelector('#form-status');
+const submitButton = contactForm.querySelector('.submit-button');
 
 const projectStatus = document.querySelector('#project-status');
 const projectList = document.querySelector('#project-list');
@@ -200,36 +203,74 @@ const validateMessage = (message) => {
     return true;
 };
 
-contactForm.addEventListener('submit', (event) => {
-    event.preventDefault();
+const sendContactForm = async () => {
+    const formData = new FormData(contactForm);
+    const response =
+        await fetch(
+            FORMSPREE_ENDPOINT,
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json'
+                },
+                body: formData
+            }
+        );
 
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    const message = messageInput.value.trim();
-
-    formSuccess.textContent = '';
-
-    const isNameValid = validateName(name);
-    const isEmailValid = validateEmail(email);
-    const isMessageValid = validateMessage(message);
-
-    if (
-        !isNameValid ||
-        !isEmailValid ||
-        !isMessageValid
-    ) {
-        return;
+    if (!response.ok) {
+        throw new Error(`Form 전송 실패: ${response.status}`);
     }
+};
 
-    formSuccess.textContent = '입력 내용이 정상적으로 확인되었습니다.';
-});
+contactForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-const clearFormSuccess = () => {
-    formSuccess.textContent = '';
+        const name =nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const message = messageInput.value.trim();
+
+        clearFormStatus();
+
+        const isNameValid = validateName(name);
+
+        const isEmailValid = validateEmail(email);
+
+        const isMessageValid = validateMessage(message);
+
+        if (!isNameValid || !isEmailValid || !isMessageValid) {
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = '전송 중...';
+
+        try {
+            await sendContactForm();
+
+            formStatus.textContent = '메시지가 정상적으로 전송되었습니다.';
+
+            formStatus.classList.add('success');
+
+            contactForm.reset();
+        } catch (error) {
+            console.error('Contact Form 전송 중 오류가 발생했습니다.', error);
+
+            formStatus.textContent = '메시지 전송에 실패했습니다. 다시 시도해주세요.';
+            formStatus.classList.add('error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = '보내기';
+        }
+    }
+);
+
+const clearFormStatus = () => {
+    formStatus.textContent = '';
+    formStatus.classList.remove('success', 'error');
 };
 
 nameInput.addEventListener('input', () => {
-    clearFormSuccess();
+    clearFormStatus();
 
     if (!nameInput.classList.contains('input-error')) {
         return;
@@ -241,27 +282,23 @@ nameInput.addEventListener('input', () => {
 });
 
 emailInput.addEventListener('input', () => {
-    clearFormSuccess();
+    clearFormStatus();
 
     if (!emailInput.classList.contains('input-error')) {
         return;
     }
 
-    const email = emailInput.value.trim();
-
-    validateEmail(email);
+    validateEmail(emailInput.value.trim());
 });
 
 messageInput.addEventListener('input', () => {
-    clearFormSuccess();
+    clearFormStatus();
 
     if (!messageInput.classList.contains('input-error')) {
         return;
     }
 
-    const message = messageInput.value.trim();
-
-    validateMessage(message);
+    validateMessage(messageInput.value.trim());
 });
 
 // ========================================
@@ -363,52 +400,6 @@ projectFilters.addEventListener('click', (event) => {
 
 fetchRepositories();
 
-// const renderProjects = (repositories) => {
-//     const projectCards = repositories.map((repository) => {
-//         const {
-//             name,
-//             description,
-//             html_url,
-//             language,
-//             stargazers_count
-//         } = repository;
-
-//         return `
-//             <article class="project-card">
-//                 <h3 class="project-card-title">
-//                     ${name}
-//                 </h3>
-
-//                 <p class="project-card-description">
-//                     ${description ?? '프로젝트 설명이 없습니다.'}
-//                 </p>
-
-//                 <div class="project-card-meta">
-//                     <span>
-//                         Language: ${language ?? 'N/A'}
-//                     </span>
-
-//                     <span>
-//                         Stars: ${stargazers_count}
-//                     </span>
-//                 </div>
-
-//                 <a
-//                     href="${html_url}"
-//                     class="project-card-link"
-//                     target="_blank"
-//                     rel="noopener noreferrer"
-//                 >
-//                     GitHub에서 보기
-//                 </a>
-//             </article>
-//         `;
-//     });
-
-//     projectList.innerHTML = projectCards.join('');
-// };
-
-// innerHTML XSS 보안문제로 textContent/createElement 사용
 const createProjectCard = (project) => {
     const article = document.createElement('article');
     article.classList.add('project-card');
