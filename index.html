@@ -1,11 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>nothingOld | Portfolio</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js" defer></script>
 </head>
 <body>
-    Hello Codyssey!
+    <header>
+        <nav>
+            <a href="#">Logo</a>
+
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>안녕하세요. nothingOld입니다.</h1>
+            <p>저를 소개하는 포트폴리오 웹사이트입니다.</p>
+
+            <a href="#projects">프로젝트 보기</a>
+            <a href="#contact">연락하기</a>
+        </section>
+
+        <section id="about">
+            <h2>About Me</h2>
+
+            <img
+                src="images/image.png"
+                alt="nothingOld 프로필 이미지"
+            >
+
+            <p>
+                데이터와 IT 서비스를 기반으로 문제를 해결하는 데 관심이 있습니다.
+            </p>
+        </section>
+
+        <section id="skills">
+            <h2>Skills</h2>
+
+            <ul>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>JavaScript</li>
+                <li>Python</li>
+                <li>SQL</li>
+                <li>Git</li>
+            </ul>
+        </section>
+
+        <section id="projects">
+            <h2>Projects</h2>
+
+            <div id="project-status">
+                프로젝트를 불러올 영역입니다.
+            </div>
+
+            <div id="project-list">
+                <article class="project-card"></article>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact</h2>
+
+            <form>
+                <div>
+                    <label for="name">이름</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                    >
+                </div>
+
+                <div>
+                    <label for="email">이메일</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                    >
+                </div>
+
+                <div>
+                    <label for="message">메시지</label>
+                    <textarea
+                        id="message"
+                        name="message"
+                    ></textarea>
+                </div>
+
+                <button type="submit">
+                    보내기
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 nothingOld</p>
+
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+    </footer>
 </body>
 </html>
