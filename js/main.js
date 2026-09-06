@@ -67,37 +67,45 @@ scrollTopButton.addEventListener('click', () => {
     });
 });
 
+const THEME_STORAGE_KEY = 'theme';
+
 const updateThemeButton = (theme) => {
     if (theme === 'dark') {
         themeToggleButton.textContent = 'L';
 
-        themeToggleButton.setAttribute(
-            'aria-label',
-            '라이트 모드로 전환'
-        );
+        themeToggleButton.setAttribute('aria-label', '라이트 모드로 전환');
     } else {
         themeToggleButton.textContent = 'D';
 
-        themeToggleButton.setAttribute(
-            'aria-label',
-            '다크 모드로 전환'
-        );
+        themeToggleButton.setAttribute('aria-label', '다크 모드로 전환');
     }
 };
 
-updateThemeButton('light');
+const applyTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+
+    updateThemeButton(theme);
+};
+
+const initializeTheme = () => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+        applyTheme(savedTheme);
+        return;
+    }
+
+    applyTheme('light');
+};
+
+initializeTheme();
 
 themeToggleButton.addEventListener('click', () => {
-    const currentTheme =
-        document.documentElement.getAttribute('data-theme');
+    const currentTheme = document.documentElement.getAttribute('data-theme');
 
-    const nextTheme =
-        currentTheme === 'dark' ? 'light' : 'dark';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-    document.documentElement.setAttribute(
-        'data-theme',
-        nextTheme
-    );
+    applyTheme(nextTheme);
 
-    updateThemeButton(nextTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
 });
