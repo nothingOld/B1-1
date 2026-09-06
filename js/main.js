@@ -281,7 +281,7 @@ const showProjectLoading = () => {
 const showProjectLoaded = () => {
     projectStatus.classList.remove('loading');
 
-    projectStatus.textContent = '프로젝트 데이터를 불러왔습니다.';
+    projectStatus.textContent = '';
 };
 
 const showProjectLoadFailure = () => {
@@ -302,7 +302,7 @@ const fetchRepositories = async () => {
 
         const repositories = await response.json();
 
-        console.log(repositories);
+        renderProjects(repositories);
 
         showProjectLoaded();
     } catch (error) {
@@ -313,3 +313,48 @@ const fetchRepositories = async () => {
 };
 
 fetchRepositories();
+
+const renderProjects = (repositories) => {
+    const projectCards = repositories.map((repository) => {
+        const {
+            name,
+            description,
+            html_url,
+            language,
+            stargazers_count
+        } = repository;
+
+        return `
+            <article class="project-card">
+                <h3 class="project-card-title">
+                    ${name}
+                </h3>
+
+                <p class="project-card-description">
+                    ${description ?? '프로젝트 설명이 없습니다.'}
+                </p>
+
+                <div class="project-card-meta">
+                    <span>
+                        Language: ${language ?? 'N/A'}
+                    </span>
+
+                    <span>
+                        Stars: ${stargazers_count}
+                    </span>
+                </div>
+
+                <a
+                    href="${html_url}"
+                    class="project-card-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    GitHub에서 보기
+                </a>
+            </article>
+        `;
+    });
+
+    projectList.innerHTML = projectCards.join('');
+};

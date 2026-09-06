@@ -272,6 +272,30 @@ section {
     line-height: 1.6;
 }
 
+.project-status:empty {
+    margin-bottom: 0;
+}
+
+.project-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+
+    margin-bottom: var(--spacing-medium);
+    font-size: 0.875rem;
+}
+
+.project-card-link {
+    font-weight: 600;
+    text-decoration: underline;
+
+    transition: opacity 0.3s;
+}
+
+.project-card-link:hover {
+    opacity: 0.7;
+}
+
 .project-status.loading {
     font-weight: 600;
 }
