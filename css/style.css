@@ -438,6 +438,27 @@ section {
     opacity: 0.7;
 }
 
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+
+    transition:opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* OS에서 애니메이션 감소 설정 되어있는 경우를 고려 */
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
 /* tablet */
 @media (min-width: 768px) {
     .nav-menu {
