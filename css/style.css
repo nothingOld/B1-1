@@ -350,6 +350,40 @@ section {
     color: #188038;
 }
 
+.scroll-top-button {
+    position: fixed;
+    right: var(--spacing-medium);
+    bottom: var(--spacing-medium);
+
+    width: 48px;
+    height: 48px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+
+    font-size: 1.25rem;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.3s,
+        visibility 0.3s,
+        transform 0.3s;
+}
+
+.scroll-top-button.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-top-button:hover {
+    transform: translateY(-3px);
+}
+
 .footer {
     border-top: 1px solid var(--border-color);
     background-color: var(--background-color);
@@ -431,6 +465,11 @@ section {
     .submit-button {
         width: auto;
         align-self: flex-start;
+    }
+
+    .scroll-top-button {
+        right: var(--spacing-large);
+        bottom: var(--spacing-large);
     }
 
     .footer-container {

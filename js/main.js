@@ -17,6 +17,8 @@ const formSuccess = document.querySelector('#form-success');
 const projectStatus = document.querySelector('#project-status');
 const projectList = document.querySelector('#project-list');
 
+const scrollTopButton = document.querySelector('#scroll-top-button');
+
 hamburgerButton.addEventListener('click', () => {
     const isActive = navMenu.classList.toggle('active');
 
@@ -42,3 +44,17 @@ navLinks.forEach((navLink) => {
     });
 });
 
+window.addEventListener('scroll', () => {
+    if (window.scrollY >= 300) {
+        scrollTopButton.classList.add('show');
+    } else {
+        scrollTopButton.classList.remove('show');
+    }
+});
+
+scrollTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
