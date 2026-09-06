@@ -225,3 +225,43 @@ contactForm.addEventListener('submit', (event) => {
 
     formSuccess.textContent = '입력 내용이 정상적으로 확인되었습니다.';
 });
+
+const clearFormSuccess = () => {
+    formSuccess.textContent = '';
+};
+
+nameInput.addEventListener('input', () => {
+    clearFormSuccess();
+
+    if (!nameInput.classList.contains('input-error')) {
+        return;
+    }
+
+    const name = nameInput.value.trim();
+
+    validateName(name);
+});
+
+emailInput.addEventListener('input', () => {
+    clearFormSuccess();
+
+    if (!emailInput.classList.contains('input-error')) {
+        return;
+    }
+
+    const email = emailInput.value.trim();
+
+    validateEmail(email);
+});
+
+messageInput.addEventListener('input', () => {
+    clearFormSuccess();
+
+    if (!messageInput.classList.contains('input-error')) {
+        return;
+    }
+
+    const message = messageInput.value.trim();
+
+    validateMessage(message);
+});
