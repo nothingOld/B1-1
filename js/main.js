@@ -23,7 +23,6 @@ const scrollTopButton = document.querySelector('#scroll-top-button');
 
 hamburgerButton.addEventListener('click', () => {
     const isActive = navMenu.classList.toggle('active');
-
     hamburgerButton.setAttribute('aria-expanded', String(isActive));
 });
 
@@ -41,7 +40,6 @@ navLinks.forEach((navLink) => {
         }
 
         navMenu.classList.remove('active');
-
         hamburgerButton.setAttribute('aria-expanded', 'false');
     });
 });
@@ -72,18 +70,15 @@ const THEME_STORAGE_KEY = 'theme';
 const updateThemeButton = (theme) => {
     if (theme === 'dark') {
         themeToggleButton.textContent = 'L';
-
         themeToggleButton.setAttribute('aria-label', '라이트 모드로 전환');
     } else {
         themeToggleButton.textContent = 'D';
-
         themeToggleButton.setAttribute('aria-label', '다크 모드로 전환');
     }
 };
 
 const applyTheme = (theme) => {
     document.documentElement.setAttribute('data-theme', theme);
-
     updateThemeButton(theme);
 };
 
@@ -274,19 +269,16 @@ const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
 
 const showProjectLoading = () => {
     projectStatus.textContent = '프로젝트를 불러오는 중...';
-
     projectStatus.classList.add('loading');
 };
 
 const showProjectLoaded = () => {
     projectStatus.classList.remove('loading');
-
     projectStatus.textContent = '';
 };
 
 const showProjectLoadFailure = () => {
     projectStatus.classList.remove('loading');
-    
     projectStatus.textContent = '프로젝트를 불러오지 못했습니다.';
 };
 
@@ -302,8 +294,12 @@ const fetchRepositories = async () => {
 
         const repositories = await response.json();
 
-        renderProjects(repositories);
+        if (repositories.length === 0) {
+            showProjectEmpty();
+            return;
+        }
 
+        renderProjects(repositories);
         showProjectLoaded();
     } catch (error) {
         console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
@@ -426,4 +422,10 @@ const renderProjects = (repositories) => {
 
         projectList.append(projectCard);
     });
+};
+
+const showProjectEmpty = () => {
+    projectStatus.classList.remove('loading');
+    projectStatus.textContent = '표시할 프로젝트가 없습니다.';
+    projectList.textContent = '';
 };
