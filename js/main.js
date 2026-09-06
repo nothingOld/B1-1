@@ -1,6 +1,3 @@
-const GITHUB_USERNAME = 'nothingOld';
-const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
-
 const header = document.querySelector('.header');
 
 const hamburgerButton = document.querySelector('.hamburger');
@@ -269,7 +266,33 @@ messageInput.addEventListener('input', () => {
     validateMessage(message);
 });
 
+// ========================================
+// GitHub Projects
+// ========================================
+const GITHUB_USERNAME = 'nothingOld';
+const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
+
+const showProjectLoading = () => {
+    projectStatus.textContent = '프로젝트를 불러오는 중...';
+
+    projectStatus.classList.add('loading');
+};
+
+const showProjectLoaded = () => {
+    projectStatus.classList.remove('loading');
+
+    projectStatus.textContent = '프로젝트 데이터를 불러왔습니다.';
+};
+
+const showProjectLoadFailure = () => {
+    projectStatus.classList.remove('loading');
+    
+    projectStatus.textContent = '프로젝트를 불러오지 못했습니다.';
+};
+
 const fetchRepositories = async () => {
+    showProjectLoading();
+
     try {
         const response = await fetch(GITHUB_API_URL);
 
@@ -280,8 +303,12 @@ const fetchRepositories = async () => {
         const repositories = await response.json();
 
         console.log(repositories);
+
+        showProjectLoaded();
     } catch (error) {
         console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
+
+        showProjectLoadFailure();
     }
 };
 
