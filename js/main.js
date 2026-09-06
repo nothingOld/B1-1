@@ -268,8 +268,10 @@ const GITHUB_USERNAME = 'nothingOld';
 const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
 
 const showProjectLoading = () => {
-    projectStatus.textContent = '프로젝트를 불러오는 중...';
     projectStatus.classList.add('loading');
+    projectList.textContent = '';
+
+    projectStatus.innerHTML = '<span>프로젝트를 불러오는 중...</span>';
 };
 
 const showProjectLoaded = () => {
@@ -380,7 +382,7 @@ fetchRepositories();
 //     projectList.innerHTML = projectCards.join('');
 // };
 
-// innerHTML 보안문제로 textContent/createElement 사용
+// innerHTML XSS 보안문제로 textContent/createElement 사용
 const createProjectCard = (project) => {
     const article = document.createElement('article');
     article.classList.add('project-card');
