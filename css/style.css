@@ -32,6 +32,8 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;
+
+    transition: background-color 0.3s, color 0.3s;
 }
 
 a {
@@ -85,7 +87,6 @@ button {
     font-weight: 700;
 }
 
-/* mobile에서는 navigation 메뉴 숨기기 */
 .nav-menu {
     display: none;
 
@@ -349,7 +350,9 @@ section {
 
     transition:
         border-color 0.3s,
-        box-shadow 0.3s;
+        box-shadow 0.3s,
+        background-color 0.3s,
+        color 0.3s;
 }
 
 .form-group textarea {

@@ -66,3 +66,38 @@ scrollTopButton.addEventListener('click', () => {
         behavior: 'smooth'
     });
 });
+
+const updateThemeButton = (theme) => {
+    if (theme === 'dark') {
+        themeToggleButton.textContent = 'L';
+
+        themeToggleButton.setAttribute(
+            'aria-label',
+            '라이트 모드로 전환'
+        );
+    } else {
+        themeToggleButton.textContent = 'D';
+
+        themeToggleButton.setAttribute(
+            'aria-label',
+            '다크 모드로 전환'
+        );
+    }
+};
+
+updateThemeButton('light');
+
+themeToggleButton.addEventListener('click', () => {
+    const currentTheme =
+        document.documentElement.getAttribute('data-theme');
+
+    const nextTheme =
+        currentTheme === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute(
+        'data-theme',
+        nextTheme
+    );
+
+    updateThemeButton(nextTheme);
+});
