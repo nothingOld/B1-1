@@ -281,15 +281,28 @@ const showProjectError = (error) => {
     projectStatus.classList.remove('loading');
     projectList.textContent = '';
 
-    if (error.status === 403) {
-        projectStatus.textContent =
-            'GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.';
+    const errorMessage =
+        error.status === 403
+            ? 'GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.'
+            : '프로젝트를 불러올 수 없습니다.';
 
-        return;
-    }
+    projectStatus.textContent = errorMessage;
 
-    projectStatus.textContent =
-        '프로젝트를 불러올 수 없습니다.';
+    const retryButton = document.createElement('button');
+
+    retryButton.type = 'button';
+    retryButton.classList.add(
+        'btn',
+        'btn-secondary',
+        'project-retry-button'
+    );
+    retryButton.textContent = '다시 시도';
+
+    retryButton.addEventListener('click', () => {
+        fetchRepositories();
+    });
+
+    projectStatus.append(retryButton);
 };
 
 const fetchRepositories = async () => {

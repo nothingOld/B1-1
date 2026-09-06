@@ -343,6 +343,11 @@ section {
     text-decoration: underline;
 }
 
+.project-retry-button {
+    display: block;
+    margin: var(--spacing-medium) auto 0;
+}
+
 .contact-container {
     max-width: 800px;
     margin: 0 auto;
