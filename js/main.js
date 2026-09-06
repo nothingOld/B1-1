@@ -18,6 +18,7 @@ const formSuccess = document.querySelector('#form-success');
 
 const projectStatus = document.querySelector('#project-status');
 const projectList = document.querySelector('#project-list');
+const projectFilters = document.querySelector('#project-filters');
 
 const scrollTopButton = document.querySelector('#scroll-top-button');
 
@@ -267,8 +268,12 @@ messageInput.addEventListener('input', () => {
 const GITHUB_USERNAME = 'nothingOld';
 const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
 
+let allRepositories = [];
+let selectedLanguage = 'all';
+
 const showProjectLoading = () => {
     projectStatus.classList.add('loading');
+    projectFilters.hidden = true;
     projectList.textContent = '';
 
     projectStatus.innerHTML = '<span>프로젝트를 불러오는 중...</span>';
@@ -282,6 +287,7 @@ const showProjectLoaded = () => {
 const showProjectError = (error) => {
     projectStatus.classList.remove('loading');
     projectList.textContent = '';
+    projectFilters.hidden = true;
 
     const errorMessage =
         error.status === 403
@@ -326,14 +332,32 @@ const fetchRepositories = async () => {
             return;
         }
 
-        renderProjects(repositories);
-        showProjectLoaded();
+        allRepositories = repositories;
+        selectedLanguage = 'all';
+
+        createProjectFilters(allRepositories);
+        renderFilteredProjects();
     } catch (error) {
         console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
 
         showProjectError(error);
     }
 };
+
+projectFilters.addEventListener('click', (event) => {
+    const button =
+        event.target.closest('.project-filter-button');
+
+    if (!button) {
+        return;
+    }
+
+    selectedLanguage =
+        button.dataset.language;
+
+    updateProjectFilterButtons();
+    renderFilteredProjects();
+});
 
 fetchRepositories();
 
@@ -423,6 +447,114 @@ const createProjectCard = (project) => {
     return article;
 };
 
+const getRepositoryLanguages = (repositories) => {
+    return [
+        ...new Set(
+            repositories
+                .map((repository) => repository.language)
+                .filter(Boolean)
+        )
+    ].sort();
+};
+
+const createProjectFilters = (repositories) => {
+    const languages =
+        getRepositoryLanguages(repositories);
+
+    projectFilters.textContent = '';
+
+    if (languages.length === 0) {
+        projectFilters.hidden = true;
+        return;
+    }
+
+    const filterLanguages = [
+        'all',
+        ...languages
+    ];
+
+    filterLanguages.forEach((language) => {
+        const button =
+            document.createElement('button');
+
+        button.type = 'button';
+
+        button.classList.add(
+            'project-filter-button'
+        );
+
+        button.dataset.language = language;
+
+        button.textContent =
+            language === 'all'
+                ? '전체'
+                : language;
+
+        const isActive =
+            language === selectedLanguage;
+
+        button.classList.toggle(
+            'active',
+            isActive
+        );
+
+        button.setAttribute(
+            'aria-pressed',
+            String(isActive)
+        );
+
+        projectFilters.append(button);
+    });
+
+    projectFilters.hidden = false;
+};
+
+const updateProjectFilterButtons = () => {
+    const filterButtons =
+        projectFilters.querySelectorAll(
+            '.project-filter-button'
+        );
+
+    filterButtons.forEach((button) => {
+        const isActive =
+            button.dataset.language ===
+            selectedLanguage;
+
+        button.classList.toggle(
+            'active',
+            isActive
+        );
+
+        button.setAttribute(
+            'aria-pressed',
+            String(isActive)
+        );
+    });
+};
+
+const renderFilteredProjects = () => {
+    const filteredRepositories =
+        selectedLanguage === 'all'
+            ? allRepositories
+            : allRepositories.filter(
+                (repository) =>
+                    repository.language ===
+                    selectedLanguage
+            );
+
+    if (filteredRepositories.length === 0) {
+        projectList.textContent = '';
+
+        projectStatus.textContent =
+            '해당 언어의 프로젝트가 없습니다.';
+
+        return;
+    }
+
+    renderProjects(filteredRepositories);
+    showProjectLoaded();
+};
+
 const renderProjects = (repositories) => {
     projectList.textContent = '';
 
@@ -455,5 +587,6 @@ const showProjectEmpty = () => {
     projectStatus.classList.remove('loading');
     projectStatus.textContent = '표시할 프로젝트가 없습니다.';
     projectList.textContent = '';
+    projectFilters.hidden = true;
 };
 

@@ -266,6 +266,48 @@ section {
     margin: 0 auto;
 }
 
+.project-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-small);
+
+    margin-bottom: var(--spacing-large);
+}
+
+.project-filters[hidden] {
+    display: none;
+}
+
+.project-filter-button {
+    padding: 8px 16px;
+
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+
+    background-color: transparent;
+    color: var(--text-color);
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        border-color 0.3s,
+        transform 0.3s;
+}
+
+.project-filter-button:hover {
+    transform: translateY(-2px);
+}
+
+.project-filter-button.active {
+    border-color: var(--primary-color);
+
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+}
+
 .project-status {
     margin-bottom: var(--spacing-large);
     text-align: center;
