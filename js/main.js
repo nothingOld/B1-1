@@ -6,6 +6,8 @@ const navLinks = document.querySelectorAll('.nav-link');
 
 const themeToggleButton = document.querySelector('.theme-toggle');
 
+const heroDescription = document.querySelector('.hero-description');
+
 const contactForm = document.querySelector('#contact-form');
 const nameInput = document.querySelector('#name');
 const emailInput = document.querySelector('#email');
@@ -590,3 +592,37 @@ const showProjectEmpty = () => {
     projectFilters.hidden = true;
 };
 
+const TYPING_SPEED = 50;
+
+const runTypingEffect = () => {
+    const typingText = heroDescription.textContent.trim();
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (typingText === '' || prefersReducedMotion) {
+        return;
+    }
+
+    heroDescription.textContent = '';
+    heroDescription.setAttribute('aria-label', typingText);
+    heroDescription.classList.add('typing');
+
+    const characters = Array.from(typingText);
+    let currentIndex = 0;
+
+    const typeNextCharacter = () => {
+        heroDescription.textContent += characters[currentIndex];
+
+        currentIndex += 1;
+
+        if (currentIndex < characters.length) {
+            window.setTimeout(typeNextCharacter, TYPING_SPEED);
+            return;
+        }
+
+        heroDescription.classList.remove('typing');
+    };
+
+    typeNextCharacter();
+};
+
+runTypingEffect();
