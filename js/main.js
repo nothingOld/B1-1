@@ -1,3 +1,5 @@
+const header = document.querySelector('.header');
+
 const hamburgerButton = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 const navLinks = document.querySelectorAll('.nav-link');
@@ -49,6 +51,12 @@ window.addEventListener('scroll', () => {
         scrollTopButton.classList.add('show');
     } else {
         scrollTopButton.classList.remove('show');
+    }
+
+    if (window.scrollY >= 60) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
     }
 });
 
