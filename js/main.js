@@ -24,7 +24,18 @@ hamburgerButton.addEventListener('click', () => {
 });
 
 navLinks.forEach((navLink) => {
-    navLink.addEventListener('click', () => {
+    navLink.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        const targetId = navLink.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+
+        if (targetSection) {
+            targetSection.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
         navMenu.classList.remove('active');
 
         hamburgerButton.setAttribute('aria-expanded', 'false');
