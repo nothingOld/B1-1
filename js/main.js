@@ -1,3 +1,6 @@
+const GITHUB_USERNAME = 'nothingOld';
+const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
+
 const header = document.querySelector('.header');
 
 const hamburgerButton = document.querySelector('.hamburger');
@@ -265,3 +268,21 @@ messageInput.addEventListener('input', () => {
 
     validateMessage(message);
 });
+
+const fetchRepositories = async () => {
+    try {
+        const response = await fetch(GITHUB_API_URL);
+
+        if (!response.ok) {
+            throw new Error(`GitHub API 요청 실패: ${response.status}`);
+        }
+
+        const repositories = await response.json();
+
+        console.log(repositories);
+    } catch (error) {
+        console.error('GitHub 프로젝트를 불러오는 중 오류가 발생했습니다.', error);
+    }
+};
+
+fetchRepositories();
