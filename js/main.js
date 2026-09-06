@@ -314,47 +314,116 @@ const fetchRepositories = async () => {
 
 fetchRepositories();
 
+// const renderProjects = (repositories) => {
+//     const projectCards = repositories.map((repository) => {
+//         const {
+//             name,
+//             description,
+//             html_url,
+//             language,
+//             stargazers_count
+//         } = repository;
+
+//         return `
+//             <article class="project-card">
+//                 <h3 class="project-card-title">
+//                     ${name}
+//                 </h3>
+
+//                 <p class="project-card-description">
+//                     ${description ?? '프로젝트 설명이 없습니다.'}
+//                 </p>
+
+//                 <div class="project-card-meta">
+//                     <span>
+//                         Language: ${language ?? 'N/A'}
+//                     </span>
+
+//                     <span>
+//                         Stars: ${stargazers_count}
+//                     </span>
+//                 </div>
+
+//                 <a
+//                     href="${html_url}"
+//                     class="project-card-link"
+//                     target="_blank"
+//                     rel="noopener noreferrer"
+//                 >
+//                     GitHub에서 보기
+//                 </a>
+//             </article>
+//         `;
+//     });
+
+//     projectList.innerHTML = projectCards.join('');
+// };
+
+// innerHTML 보안문제로 textContent/createElement 사용
+const createProjectCard = (project) => {
+    const article = document.createElement('article');
+    article.classList.add('project-card');
+
+    const title = document.createElement('h3');
+    title.classList.add('project-card-title');
+    title.textContent = project.name;
+
+    const description = document.createElement('p');
+    description.classList.add('project-card-description');
+    description.textContent = project.description;
+
+    const meta = document.createElement('div');
+    meta.classList.add('project-card-meta');
+
+    const language = document.createElement('span');
+    language.textContent = `Language: ${project.language}`;
+
+    const stars = document.createElement('span');
+    stars.textContent = `Stars: ${project.starCount}`;
+
+    const link = document.createElement('a');
+    link.classList.add('project-card-link');
+    link.href = project.htmlUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'GitHub에서 보기';
+
+    meta.append(language, stars);
+
+    article.append(
+        title,
+        description,
+        meta,
+        link
+    );
+
+    return article;
+};
+
 const renderProjects = (repositories) => {
-    const projectCards = repositories.map((repository) => {
+    projectList.textContent = '';
+
+    const projects = repositories.map((repository) => {
         const {
             name,
             description,
-            html_url,
+            html_url: htmlUrl,
             language,
-            stargazers_count
+            stargazers_count: starCount
         } = repository;
 
-        return `
-            <article class="project-card">
-                <h3 class="project-card-title">
-                    ${name}
-                </h3>
-
-                <p class="project-card-description">
-                    ${description ?? '프로젝트 설명이 없습니다.'}
-                </p>
-
-                <div class="project-card-meta">
-                    <span>
-                        Language: ${language ?? 'N/A'}
-                    </span>
-
-                    <span>
-                        Stars: ${stargazers_count}
-                    </span>
-                </div>
-
-                <a
-                    href="${html_url}"
-                    class="project-card-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    GitHub에서 보기
-                </a>
-            </article>
-        `;
+        return {
+            name,
+            description: description ?? '프로젝트 설명이 없습니다.',
+            htmlUrl,
+            language: language ?? 'N/A',
+            starCount
+        };
     });
 
-    projectList.innerHTML = projectCards.join('');
+    projects.forEach((project) => {
+        const projectCard = createProjectCard(project);
+
+        projectList.append(projectCard);
+    });
 };
